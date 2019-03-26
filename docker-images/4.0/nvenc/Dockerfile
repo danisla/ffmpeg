@@ -80,7 +80,7 @@ RUN      buildDeps="autoconf \
 
 RUN git clone --depth=1 https://git.videolan.org/git/ffmpeg/nv-codec-headers.git \
     && cd nv-codec-headers \
-    && git checkout ${NVENC_VERSION} && \
+    && git checkout ${NVENC_VERSION} \
     && make \
     && make install
  
@@ -352,6 +352,7 @@ RUN \
         --enable-libxvid \
         --enable-libx264 \
         --enable-libxcb \
+        --enable-librtmp \
         --enable-nonfree \
         --enable-openssl \
         --enable-libfdk_aac \
