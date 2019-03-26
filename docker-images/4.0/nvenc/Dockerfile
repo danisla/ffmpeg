@@ -78,11 +78,12 @@ RUN      buildDeps="autoconf \
         apt-get -yqq update && \
         apt-get install -yq --no-install-recommends ${buildDeps}
 
-RUN git clone --depth=1 https://git.videolan.org/git/ffmpeg/nv-codec-headers.git \
-    && cd nv-codec-headers \
-    && git checkout ${NVENC_VERSION} \
-    && make \
-    && make install
+## nv-codec-headers http://git.videolan.org/?p=ffmpeg/nv-codec-headers.git
+RUN \
+        git clone --branch=${NVENC_VERSION} --depth=1 https://git.videolan.org/git/ffmpeg/nv-codec-headers.git && \
+        cd nv-codec-headers && \
+        make && \
+        make install
  
 ## opencore-amr https://sourceforge.net/projects/opencore-amr/
 RUN \
