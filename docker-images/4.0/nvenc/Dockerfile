@@ -74,6 +74,7 @@ RUN      buildDeps="autoconf \
                     libssl-dev \
                     yasm \
                     libxcb1-dev \
+                    librtmp-dev \
                     zlib1g-dev" && \
         apt-get -yqq update && \
         apt-get install -yq --no-install-recommends ${buildDeps}
@@ -392,7 +393,7 @@ COPY --from=build /usr/local /usr/local/
 
 RUN \
 	apt-get update -y && \
-	apt-get install -y --no-install-recommends libxcb1 && \
+	apt-get install -y --no-install-recommends libxcb1 librtmp1 && \
 	rm -rf /var/lib/apt/lists/*
 
 # Let's make sure the app built correctly
