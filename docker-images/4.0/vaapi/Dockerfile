@@ -41,6 +41,7 @@ ENV         FFMPEG_VERSION=4.0.3     \
             LIBVIDSTAB_VERSION=1.1.0  \
             KVAZAAR_VERSION=1.2.0     \
             AOM_VERSION=v1.0.0        \
+            NVENC_VERSION=n9.0.18.1   \
             SRC=/usr/local
 
 ARG         OGG_SHA256SUM="e19ee34711d7af328cb26287f4137e70630e7261b17cbe3cd41011d73a654692  libogg-1.3.2.tar.gz"
@@ -73,6 +74,7 @@ RUN      buildDeps="autoconf \
                     libssl-dev \
                     yasm \
                     libva-dev \
+                    libxcb1-dev \
                     zlib1g-dev" && \
         apt-get -yqq update && \
         apt-get install -yq --no-install-recommends ${buildDeps}
@@ -318,6 +320,12 @@ RUN \
 	curl -sLO https://github.com/FFmpeg/FFmpeg/commit/b69ea742ab23ad74b2ae2772764743642212a139.patch && \
 	git apply b69ea742ab23ad74b2ae2772764743642212a139.patch
 
+RUN \
+	git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git && \
+	cd nv-codec-headers && \
+	git checkout ${NVENC_VERSION} && \
+	make && \
+	make install
 
 RUN \
         DIR=/tmp/ffmpeg && mkdir -p ${DIR} && cd ${DIR} && \
@@ -343,6 +351,7 @@ RUN \
         --enable-libx265 \
         --enable-libxvid \
         --enable-libx264 \
+        --enable-libxcb \
         --enable-nonfree \
         --enable-openssl \
         --enable-libfdk_aac \
@@ -351,6 +360,7 @@ RUN \
         --enable-postproc \
         --enable-small \
         --enable-version3 \
+        --enable-nvenc \
         --extra-cflags="-I${PREFIX}/include" \
         --extra-ldflags="-L${PREFIX}/lib" \
         --extra-libs=-ldl \
@@ -381,7 +391,7 @@ COPY --from=build /usr/local /usr/local/
 
 RUN \
 	apt-get update -y && \
-	apt-get install -y --no-install-recommends libva-drm2 libva2 i965-va-driver && \
+	apt-get install -y --no-install-recommends libva-drm2 libva2 i965-va-driver libxcb1 && \
 	rm -rf /var/lib/apt/lists/*
 
 # Let's make sure the app built correctly
