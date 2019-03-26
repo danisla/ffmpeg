@@ -41,6 +41,7 @@ ENV         FFMPEG_VERSION=4.0.3     \
             LIBVIDSTAB_VERSION=1.1.0  \
             KVAZAAR_VERSION=1.2.0     \
             AOM_VERSION=v1.0.0        \
+            NVENC_VERSION=n9.0.18.1   \
             SRC=/usr/local
 
 ARG         OGG_SHA256SUM="e19ee34711d7af328cb26287f4137e70630e7261b17cbe3cd41011d73a654692  libogg-1.3.2.tar.gz"
@@ -72,12 +73,14 @@ RUN      buildDeps="autoconf \
                     python \
                     libssl-dev \
                     yasm \
+                    libxcb1-dev \
                     zlib1g-dev" && \
         apt-get -yqq update && \
         apt-get install -yq --no-install-recommends ${buildDeps}
 
 RUN git clone --depth=1 https://git.videolan.org/git/ffmpeg/nv-codec-headers.git \
     && cd nv-codec-headers \
+    && git checkout ${NVENC_VERSION} && \
     && make \
     && make install
  
@@ -348,6 +351,7 @@ RUN \
         --enable-libx265 \
         --enable-libxvid \
         --enable-libx264 \
+        --enable-libxcb \
         --enable-nonfree \
         --enable-openssl \
         --enable-libfdk_aac \
@@ -383,6 +387,11 @@ ENTRYPOINT  ["ffmpeg"]
 ENV         LD_LIBRARY_PATH=/usr/local/lib
 
 COPY --from=build /usr/local /usr/local/
+
+RUN \
+	apt-get update -y && \
+	apt-get install -y --no-install-recommends libxcb1 && \
+	rm -rf /var/lib/apt/lists/*
 
 # Let's make sure the app built correctly
 # Convenient to verify on https://hub.docker.com/r/jrottenberg/ffmpeg/builds/ console output
